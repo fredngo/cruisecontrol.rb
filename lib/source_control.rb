@@ -14,12 +14,14 @@ module SourceControl
           when /^git:/ then SourceControl::Git
           when /^svn:/, /^svn\+ssh:/ then SourceControl::Subversion
           when /^bzr:/, /^bzr\+ssh:/ then SourceControl::Bazaar
+          when /^p4:/, then SourceControl::Perforce
           else SourceControl::Subversion
           end
       else
         scm_type = "subversion" if scm_type == "svn"
         scm_type = "mercurial" if scm_type == "hg"
         scm_type = "bazaar" if scm_type == "bzr"
+        scm_type = "perforce" if scm_type == "p4"
         
         source_control_class_name = scm_type.to_s.camelize
         begin
@@ -42,13 +44,15 @@ module SourceControl
       svn = File.directory?(File.join(path, '.svn'))
       hg = File.directory?(File.join(path, '.hg'))
       bzr = File.directory?(File.join(path, '.bzr'))
+      p4 = File.directory?(File.join(path,'.p4'))
 
-      case [git, svn, hg, bzr]
-      when [true, false, false, false] then SourceControl::Git.new(:path => path)
-      when [false, true, false, false] then SourceControl::Subversion.new(:path => path)
-      when [false, false, true, false] then SourceControl::Mercurial.new(:path => path)
-      when [false, false, false, true] then SourceControl::Bazaar.new(:path => path)
-      when [false, false, false, false] then raise "Could not detect the type of source control in #{path}"
+      case [git, svn, hg, bzr, p4]
+      when [true, false, false, false, false] then SourceControl::Git.new(:path => path)
+      when [false, true, false, false, false] then SourceControl::Subversion.new(:path => path)
+      when [false, false, true, false, false] then SourceControl::Mercurial.new(:path => path)
+      when [false, false, false, true, false] then SourceControl::Bazaar.new(:path => path)
+      when [false, false, false, false, true] then SourceControl::Perforce.new(:path => path)        
+      when [false, false, false, false, false] then raise "Could not detect the type of source control in #{path}"
       else raise "More than one type of source control was detected in #{path}"
       end
     end
