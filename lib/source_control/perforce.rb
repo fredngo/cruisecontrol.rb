@@ -20,7 +20,7 @@ module SourceControl
       @clientspec = ENV['P4CLIENT']
       
       @path, @p4path, @interactive =
-            options.delete(:path), options.delete(:p4path),
+            options.delete(:path), options.delete(:repository),
             options.delete(:interactive)
       raise "don't know how to handle '#{options.keys.first}'" if options.length > 0
       
