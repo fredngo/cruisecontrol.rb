@@ -7,12 +7,23 @@ module SourceControl
     MAX_CHANGELISTS_TO_FETCH = 25
     
     def initialize(options = {})
-      @port, @clientspec, @username, @password, @path, @p4path, @interactive = 
-            options.delete(:port), options.delete(:clientspec), 
-            options.delete(:user), options.delete(:password), 
+      #@port, @clientspec, @username, @password, @path, @p4path, @interactive = 
+      #      options.delete(:port), options.delete(:clientspec), 
+      #      options.delete(:user), options.delete(:password), 
+      #      options.delete(:path), options.delete(:p4path),
+      #      options.delete(:interactive)
+      #raise "don't know how to handle '#{options.keys.first}'" if options.length > 0
+
+      @port       = ENV['P4PORT']
+      @username   = ENV['P4USER']
+      @password   = ENV['P4PASSWD']
+      @clientspec = ENV['P4CLIENT']
+      
+      @path, @p4path, @interactive =
             options.delete(:path), options.delete(:p4path),
             options.delete(:interactive)
       raise "don't know how to handle '#{options.keys.first}'" if options.length > 0
+      
       @clientspec or raise 'P4 Clientspec not specified'
       @port or raise 'P4 Port not specified'
       @username or raise 'P4 username not specified'

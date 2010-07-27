@@ -15,7 +15,7 @@ if ARGV.first and ARGV.first !~ /^-/
 end
 
 ARGV.options do |opts|
-  opts.banner = "usage: add [project-name] -r [repository] -s [svn|git|hg|bzr]"
+  opts.banner = "usage: add [project-name] -r [repository] -s [svn|git|hg|bzr|p4]"
 
   opts.separator ""
 
