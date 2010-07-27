@@ -14,7 +14,7 @@ module SourceControl
           when /^git:/ then SourceControl::Git
           when /^svn:/, /^svn\+ssh:/ then SourceControl::Subversion
           when /^bzr:/, /^bzr\+ssh:/ then SourceControl::Bazaar
-          when /^p4:/, then SourceControl::Perforce
+          when /^p4:/ then SourceControl::Perforce
           else SourceControl::Subversion
           end
       else
