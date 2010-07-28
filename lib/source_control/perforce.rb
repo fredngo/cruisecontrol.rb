@@ -13,10 +13,12 @@ module SourceControl
       #      options.delete(:path), options.delete(:p4path)
       #raise "don't know how to handle '#{options.keys.first}'" if options.length > 0
 
-      @port       = ENV['P4PORT']
-      @username   = ENV['P4USER']
-      @password   = ENV['P4PASSWD']
-      @clientspec = ENV['P4CLIENT']
+      @config = YAML.load_file("#{RAILS_ROOT}/config/perforce.yml")
+
+      @port       = @config['p4port']
+      @username   = @config['p4user']
+      @password   = @config['p4passwd']
+      @clientspec = @config['p4client']
       
       @path, @repository, @interactive =
             options.delete(:path), options.delete(:repository),
@@ -90,7 +92,7 @@ module SourceControl
     # Execute a P4 command, and return an array of the resulting output lines
     # The array will contain a hash for each line out output
     def p4(operation, options = nil)
-      p4cmd = "p4 -p #{@port} -c #{@clientspec} -u #{@username} " + password_args
+      p4cmd = "p4 -R -p #{@port} -c #{@clientspec} -u #{@username} " + password_args
       p4cmd << "#{operation.to_s}"
       p4cmd << " " << options if options
 
