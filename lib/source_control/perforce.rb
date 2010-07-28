@@ -107,7 +107,10 @@ module SourceControl
     end
     
     def password_args
-      (@password.blank?) ? "" : "-P #{@password} "
+#      (@password.blank?) ? "" : "-P #{@password} "
+
+      # For some reason our implementation doesn't like -P
+      return ""
     end
     
     def info
