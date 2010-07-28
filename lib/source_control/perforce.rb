@@ -32,7 +32,7 @@ module SourceControl
     end
   
     def checkout(revision = nil, stdout = $stdout)
-      options = "#{@p4path}"
+      options = "-f #{@p4path}"
       options << "@#{revision_number(revision)}" unless revision.nil?
   
       # need to read from command output, because otherwise tests break
@@ -93,9 +93,13 @@ module SourceControl
       p4cmd = "p4 -p #{@port} -c #{@clientspec} -u #{@username} " + password_args
       p4cmd << "#{operation.to_s}"
       p4cmd << " " << options if options
+
+      puts
+      puts p4cmd
+      puts
       
       p4_output = Array.new
-      # puts p4cmd
+
       IO.popen(p4cmd, "rb") do |file|
         while not file.eof
           p4_output << Marshal.load(file)
