@@ -7,11 +7,10 @@ module SourceControl
     MAX_CHANGELISTS_TO_FETCH = 25
     
     def initialize(options = {})
-      #@port, @clientspec, @username, @password, @path, @p4path, @interactive = 
+      #@port, @clientspec, @username, @password, @path, @p4path = 
       #      options.delete(:port), options.delete(:clientspec), 
       #      options.delete(:user), options.delete(:password), 
-      #      options.delete(:path), options.delete(:p4path),
-      #      options.delete(:interactive)
+      #      options.delete(:path), options.delete(:p4path)
       #raise "don't know how to handle '#{options.keys.first}'" if options.length > 0
 
       @port       = ENV['P4PORT']
@@ -33,8 +32,8 @@ module SourceControl
     end
   
     def checkout(revision = nil, stdout = $stdout)
-      options = ""
-      options << "#{@p4path}@#{revision_number(revision)}" unless revision.nil?
+      options = "#{@p4path}"
+      options << "@#{revision_number(revision)}" unless revision.nil?
   
       # need to read from command output, because otherwise tests break
       p4(:sync, options).each {|line| stdout.puts line.to_s }
@@ -91,7 +90,7 @@ module SourceControl
     # Execute a P4 command, and return an array of the resulting output lines
     # The array will contain a hash for each line out output
     def p4(operation, options = nil)
-      p4cmd = "p4 -R -p #{@port} -c #{@clientspec} -u #{@username} " + password_args
+      p4cmd = "p4 -p #{@port} -c #{@clientspec} -u #{@username} " + password_args
       p4cmd << "#{operation.to_s}"
       p4cmd << " " << options if options
       
