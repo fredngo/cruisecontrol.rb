@@ -1,35 +1,35 @@
 module SourceControl
 
-  class Perforce < AbstractAdapter
+  classs Perforce < AbstractAdapter
   
     attr_accessor :repository
   
     MAX_CHANGELISTS_TO_FETCH = 25
     
     def initialize(options = {})
-      @config = YAML.load_file("#{RAILS_ROOT}/config/perforce.yml")
+      config = YAML.load_file("#{RAILS_ROOT}/config/perforce.yml")
 
-      @port       = @config['p4port']
-      @username   = @config['p4user']
-      @password   = @config['p4passwd']
-      @clientspec = @config['p4client']
+      @port       = config['p4port']
+      @username   = config['p4user']
+      @password   = config['p4passwd']
+      @clientspec = config['p4client']
       
-      @path, @repository, @interactive =
+      @p4path, @repository, @interactive =
             options.delete(:path),
             options.delete(:repository),
             options.delete(:interactive)
-      @path = @repository if @repository
+      @p4path = @repository if @repository
       raise "don't know how to handle '#{options.keys.first}'" if options.length > 0
       
       @port or raise 'P4 Port not specified'
       @username or raise 'P4 username not specified'
       @password or raise 'P4 password not specified'
       @clientspec or raise 'P4 Clientspec not specified'
-      @path or raise "P4 depot path not specified but pwd is #{Dir.pwd}"
+      @p4path or raise "P4 depot path not specified"
     end
   
     def checkout(revision = nil, stdout = $stdout)
-      options = "-f #{@path}"
+      options = "-f #{@p4path}"
       options << "@#{revision_number(revision)}" unless revision.nil?
   
       # need to read from command output, because otherwise tests break
@@ -42,7 +42,7 @@ module SourceControl
     end
   
     def latest_revision
-      build_revision_from(p4(:changes, "-m 1 #{@path}").first)
+      build_revision_from(p4(:changes, "-m 1 #{@p4path}").first)
     end
     
     def last_locally_known_revision
@@ -66,7 +66,7 @@ module SourceControl
     # SYNC_PATTERN = /^(\/\/.+#\d+) - (\w+) .+$/
     def update(revision = nil)
       checkout(revision)
-    #   sync_output = p4(:sync, revision.nil? ? "" : "#{@path}@#{revision_number(revision)}")
+    #   sync_output = p4(:sync, revision.nil? ? "" : "#{@p4path}@#{revision_number(revision)}")
     #   synced_files = Array.new
     #   
     #   sync_output.each do |line|
@@ -114,8 +114,8 @@ module SourceControl
     end
     
     def info
-      change1 = p4(:changes, "-m 1 #{@path}#have").first
-      change2 = p4(:changes, "-m 1 #{@path}#head").first
+      change1 = p4(:changes, "-m 1 #{@p4path}#have").first
+      change2 = p4(:changes, "-m 1 #{@p4path}#head").first
       Perforce::Info.new(change1['change'].to_i, change2['change'].to_i, change2['user'])
     end
     
@@ -137,7 +137,7 @@ module SourceControl
     end
     
     def revisions_since(revision_number)
-      p4(:changes, "-m #{MAX_CHANGELISTS_TO_FETCH} #{@path}@#{revision_number},#head").collect do |change|
+      p4(:changes, "-m #{MAX_CHANGELISTS_TO_FETCH} #{@p4path}@#{revision_number},#head").collect do |change|
         build_revision_from(change)
       end
     end
