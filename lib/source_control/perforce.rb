@@ -14,21 +14,22 @@ module SourceControl
       @password   = @config['p4passwd']
       @clientspec = @config['p4client']
       
-      @repository, @interactive =
+      @path, @repository, @interactive =
+            options.delete(:path),
             options.delete(:repository),
             options.delete(:interactive)
-      @p4path = @repository
+      @path = @repository if @repository
       raise "don't know how to handle '#{options.keys.first}'" if options.length > 0
       
       @port or raise 'P4 Port not specified'
       @username or raise 'P4 username not specified'
       @password or raise 'P4 password not specified'
       @clientspec or raise 'P4 Clientspec not specified'
-      @p4path or raise "P4 depot path not specified but pwd is #{Dir.pwd}"
+      @path or raise "P4 depot path not specified but pwd is #{Dir.pwd}"
     end
   
     def checkout(revision = nil, stdout = $stdout)
-      options = "-f #{@p4path}"
+      options = "-f #{@path}"
       options << "@#{revision_number(revision)}" unless revision.nil?
   
       # need to read from command output, because otherwise tests break
@@ -41,7 +42,7 @@ module SourceControl
     end
   
     def latest_revision
-      build_revision_from(p4(:changes, "-m 1 #{@p4path}").first)
+      build_revision_from(p4(:changes, "-m 1 #{@path}").first)
     end
     
     def last_locally_known_revision
@@ -113,8 +114,8 @@ module SourceControl
     end
     
     def info
-      change1 = p4(:changes, "-m 1 #{@p4path}#have").first
-      change2 = p4(:changes, "-m 1 #{@p4path}#head").first
+      change1 = p4(:changes, "-m 1 #{@path}#have").first
+      change2 = p4(:changes, "-m 1 #{@path}#head").first
       Perforce::Info.new(change1['change'].to_i, change2['change'].to_i, change2['user'])
     end
     
@@ -136,7 +137,7 @@ module SourceControl
     end
     
     def revisions_since(revision_number)
-      p4(:changes, "-m #{MAX_CHANGELISTS_TO_FETCH} #{@p4path}@#{revision_number},#head").collect do |change|
+      p4(:changes, "-m #{MAX_CHANGELISTS_TO_FETCH} #{@path}@#{revision_number},#head").collect do |change|
         build_revision_from(change)
       end
     end
