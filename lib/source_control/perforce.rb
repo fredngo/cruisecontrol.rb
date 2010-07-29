@@ -2,17 +2,11 @@ module SourceControl
 
   class Perforce < AbstractAdapter
   
-    attr_accessor :port, :client_spec, :username, :password, :path, :p4path, :repository
+    attr_accessor :repository
   
     MAX_CHANGELISTS_TO_FETCH = 25
     
     def initialize(options = {})
-      #@port, @clientspec, @username, @password, @path, @p4path = 
-      #      options.delete(:port), options.delete(:clientspec), 
-      #      options.delete(:user), options.delete(:password), 
-      #      options.delete(:path), options.delete(:p4path)
-      #raise "don't know how to handle '#{options.keys.first}'" if options.length > 0
-
       @config = YAML.load_file("#{RAILS_ROOT}/config/perforce.yml")
 
       @port       = @config['p4port']
@@ -20,17 +14,17 @@ module SourceControl
       @password   = @config['p4passwd']
       @clientspec = @config['p4client']
       
-      @path, @repository, @interactive =
-            options.delete(:path), options.delete(:repository),
+      @repository, @interactive =
+            options.delete(:repository),
             options.delete(:interactive)
       @p4path = @repository
       raise "don't know how to handle '#{options.keys.first}'" if options.length > 0
       
-      @clientspec or raise 'P4 Clientspec not specified'
       @port or raise 'P4 Port not specified'
       @username or raise 'P4 username not specified'
       @password or raise 'P4 password not specified'
-      @p4path or raise 'P4 depot path not specified'
+      @clientspec or raise 'P4 Clientspec not specified'
+      @p4path or raise "P4 depot path not specified but pwd is #{Dir.pwd}"
     end
   
     def checkout(revision = nil, stdout = $stdout)
