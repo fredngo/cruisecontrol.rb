@@ -97,9 +97,7 @@ class Project
     @error_message = ''
     @triggers = [ChangeInSourceControlTrigger.new(self)]
     
-    puts "before: scm = #{scm} scm.path = #{scm.path}"
     self.source_control = scm if scm
-    puts "after: scm = #{scm} scm.path = #{scm.path}"
     
     instantiate_plugins
   end
