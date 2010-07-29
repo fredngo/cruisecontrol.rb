@@ -1,6 +1,6 @@
 module SourceControl
 
-  classs Perforce < AbstractAdapter
+  class Perforce < AbstractAdapter
   
     attr_accessor :repository
   
