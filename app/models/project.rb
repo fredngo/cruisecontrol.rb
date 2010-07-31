@@ -75,7 +75,7 @@ class Project
         FileUtils.mkdir_p work_dir
         project.source_control.checkout
         
-        if project.source_control.kindof? SourceControl::Perforce then
+        if project.source_control.instance_of? SourceControl::Perforce then
           FileUtils.mkdir_p "#{work_dir}/.p4"
         end
       end
