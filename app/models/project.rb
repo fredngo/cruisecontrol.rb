@@ -74,6 +74,10 @@ class Project
         work_dir = File.join(project.path, 'work')
         FileUtils.mkdir_p work_dir
         project.source_control.checkout
+        
+        if project.source_control.kindof? SourceControl::Perforce then
+          FileUtils.mkdir_p "#{work_dir}/.p4"
+        end
       end
 
       def write_config_example(project)
