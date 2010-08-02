@@ -103,6 +103,7 @@ class SourceControlTest < Test::Unit::TestCase
       File.expects(:directory?).with(File.join('./Proj1/work', '.svn')).returns(false)
       File.expects(:directory?).with(File.join('./Proj1/work', '.hg')).returns(false)
       File.expects(:directory?).with(File.join('./Proj1/work', '.bzr')).returns(false)
+      File.expects(:directory?).with(File.join('./Proj1/work', '.p4')).returns(false)
       SourceControl::Git.expects(:new).with(:path => './Proj1/work').returns(:git_instance)
 
       assert_equal :git_instance, SourceControl.detect('./Proj1/work')
@@ -115,6 +116,7 @@ class SourceControlTest < Test::Unit::TestCase
       File.expects(:directory?).with(File.join('./Proj1/work', '.svn')).returns(false)
       File.expects(:directory?).with(File.join('./Proj1/work', '.hg')).returns(true)
       File.expects(:directory?).with(File.join('./Proj1/work', '.bzr')).returns(false)
+      File.expects(:directory?).with(File.join('./Proj1/work', '.p4')).returns(false)
       SourceControl::Mercurial.expects(:new).with(:path => './Proj1/work').returns(:hg_instance)
 
       assert_equal :hg_instance, SourceControl.detect('./Proj1/work')
@@ -127,6 +129,7 @@ class SourceControlTest < Test::Unit::TestCase
       File.expects(:directory?).with(File.join('./Proj1/work', '.svn')).returns(true)
       File.expects(:directory?).with(File.join('./Proj1/work', '.hg')).returns(false)
       File.expects(:directory?).with(File.join('./Proj1/work', '.bzr')).returns(false)
+      File.expects(:directory?).with(File.join('./Proj1/work', '.p4')).returns(false)
       SourceControl::Subversion.expects(:new).with(:path => './Proj1/work').returns(:svn_instance)
 
       assert_equal :svn_instance, SourceControl.detect('./Proj1/work')
@@ -139,33 +142,48 @@ class SourceControlTest < Test::Unit::TestCase
       File.expects(:directory?).with(File.join('./Proj1/work', '.svn')).returns(false)
       File.expects(:directory?).with(File.join('./Proj1/work', '.hg')).returns(false)
       File.expects(:directory?).with(File.join('./Proj1/work', '.bzr')).returns(true)
+      File.expects(:directory?).with(File.join('./Proj1/work', '.p4')).returns(false)      
       SourceControl::Bazaar.expects(:new).with(:path => './Proj1/work').returns(:bzr_instance)
 
       assert_equal :bzr_instance, SourceControl.detect('./Proj1/work')
     end
   end
 
-
-  def test_detect_should_blow_up_if_there_is_neither_subversion_nor_git
+  def test_detect_should_identify_perforce_repository_by_presence_of_dotp4_directory
     in_sandbox do
       File.expects(:directory?).with(File.join('./Proj1/work', '.git')).returns(false)
       File.expects(:directory?).with(File.join('./Proj1/work', '.svn')).returns(false)
       File.expects(:directory?).with(File.join('./Proj1/work', '.hg')).returns(false)
       File.expects(:directory?).with(File.join('./Proj1/work', '.bzr')).returns(false)
+      File.expects(:directory?).with(File.join('./Proj1/work', '.p4')).returns(true)      
+      SourceControl::Perforce.expects(:new).with(:path => './Proj1/work').returns(:p4_instance)
 
+      assert_equal :p4_instance, SourceControl.detect('./Proj1/work')
+    end
+  end
+
+  def test_detect_should_blow_up_if_there_is_no_source_control
+    in_sandbox do
+      File.expects(:directory?).with(File.join('./Proj1/work', '.git')).returns(false)
+      File.expects(:directory?).with(File.join('./Proj1/work', '.svn')).returns(false)
+      File.expects(:directory?).with(File.join('./Proj1/work', '.hg')).returns(false)
+      File.expects(:directory?).with(File.join('./Proj1/work', '.bzr')).returns(false)
+      File.expects(:directory?).with(File.join('./Proj1/work', '.p4')).returns(false)
+      
       assert_raise RuntimeError, "Could not detect the type of source control in ./Proj1/work" do
         SourceControl.detect('./Proj1/work')
       end
     end
   end
 
-  def test_detect_should_blow_up_if_there_is_both_subversion_and_git
+  def test_detect_should_blow_up_if_there_are_more_than_one_type_of_souce_control
     in_sandbox do
       File.expects(:directory?).with(File.join('./Proj1/work', '.git')).returns(true)
       File.expects(:directory?).with(File.join('./Proj1/work', '.svn')).returns(true)
       File.expects(:directory?).with(File.join('./Proj1/work', '.hg')).returns(false)
       File.expects(:directory?).with(File.join('./Proj1/work', '.bzr')).returns(false)
-
+      File.expects(:directory?).with(File.join('./Proj1/work', '.p4')).returns(false)
+      
       assert_raise RuntimeError, "More than one type of source control was detected in ./Proj1/work" do
         SourceControl.detect('./Proj1/work')
       end
