@@ -4,7 +4,8 @@ module SourceControl
     class Revision < AbstractRevision
       attr_accessor :number, :author, :time, :message, :changeset
 
-      def initialize(options = {})
+      def initialize(number, options = {})
+        @number = number
         options.each {|key, value| send("#{key}=", value) }
       end
 
