@@ -126,10 +126,10 @@ module SourceControl
     def build_revision_from(change)
       return nil unless change
       
-      changeset = change['change'].to_i
+      number = change['change'].to_i
       
       # Build the array of changes
-      changed_files = p4(:describe, "-s #{changeset}").first
+      changed_files = p4(:describe, "-s #{number}").first
       i = 0
       changesets = []
       while (changed_files["action#{i}"])
@@ -137,7 +137,11 @@ module SourceControl
         i = i + 1
       end
       
-      Revision.new(changeset, change['user'], Time.at(change['time'].to_i), change['desc'], changesets)
+      Revision.new(:number    => number, 
+                   :author    => change['user'], 
+                   :time      => Time.at(change['time'].to_i),
+                   :message   => change['desc'],
+                   :changeset => changesets)
     end
     
     def revisions_since(revision_number)
