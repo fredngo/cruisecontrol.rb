@@ -137,11 +137,11 @@ module SourceControl
         i = i + 1
       end
       
-      Revision.new(:number    => number, 
-                   :author    => change['user'], 
-                   :time      => Time.at(change['time'].to_i),
-                   :message   => change['desc'],
-                   :changeset => changesets)
+      Revision.new({:number    => number, 
+                    :author    => change['user'], 
+                    :time      => Time.at(change['time'].to_i),
+                    :message   => change['desc'],
+                    :changeset => changesets})
     end
     
     def revisions_since(revision_number)
