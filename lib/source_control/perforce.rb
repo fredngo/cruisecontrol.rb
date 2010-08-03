@@ -42,7 +42,7 @@ module SourceControl
     end
   
     def latest_revision
-      build_revision_from(p4(:changes, "-m 1 #{@p4path}").first)
+      build_revision_from(p4(:changes, "-m 1 #{depot_path}").first)
     end
     
     def last_locally_known_revision
@@ -106,6 +106,10 @@ module SourceControl
       p4_output
     end
     
+    def depot_path
+      p4(:where, "#{@p4path}").first["depotFile"] + "/..."
+    end
+    
     def password_args
 #      (@password.blank?) ? "" : "-P #{@password} "
 
@@ -114,8 +118,8 @@ module SourceControl
     end
     
     def info
-      change1 = p4(:changes, "-m 1 #{@p4path}#have").first
-      change2 = p4(:changes, "-m 1 #{@p4path}#head").first
+      change1 = p4(:changes, "-m 1 #{depot_path}#have").first
+      change2 = p4(:changes, "-m 1 #{depot_path}#head").first
       Perforce::Info.new(change1['change'].to_i, change2['change'].to_i, change2['user'])
     end
     
@@ -137,7 +141,7 @@ module SourceControl
     end
     
     def revisions_since(revision_number)
-      p4(:changes, "-m #{MAX_CHANGELISTS_TO_FETCH} #{@p4path}@#{revision_number},#head").collect do |change|
+      p4(:changes, "-m #{MAX_CHANGELISTS_TO_FETCH} #{depot_path}@#{revision_number},#head").collect do |change|
         build_revision_from(change)
       end
     end
