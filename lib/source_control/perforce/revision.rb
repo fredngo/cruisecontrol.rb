@@ -13,6 +13,14 @@ module SourceControl
         other.is_a?(Perforce::Revision) && number == other.number
       end
 
+      def >(other)
+        other.is_a?(Perforce::Revision) && number > other.number
+      end
+      
+      def <(other)
+        other.is_a?(Perforce::Revision) && number < other.number
+      end
+      
 # I don't know what this does
       def files
 #        changeset ? changeset.map{|change| change.gsub(/\|.*$/, '').strip} : []
