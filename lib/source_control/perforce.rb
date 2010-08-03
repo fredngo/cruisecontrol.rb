@@ -29,7 +29,7 @@ module SourceControl
     end
   
     def checkout(revision = nil, stdout = $stdout)
-      options = "-f #{@p4path}"
+      options = "-f #{depot_path}"
       options << "@#{revision_number(revision)}" unless revision.nil?
   
       # need to read from command output, because otherwise tests break
