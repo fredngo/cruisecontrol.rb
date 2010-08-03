@@ -13,6 +13,7 @@ module SourceControl
       @username   = config['p4user']
       @password   = config['p4passwd']
       @clientspec = config['p4client']
+      @charset    = config['p4charset']
       
       @p4path, @repository, @interactive =
             options.delete(:path),
@@ -25,6 +26,7 @@ module SourceControl
       @username or raise 'P4 username not specified'
       @password or raise 'P4 password not specified'
       @clientspec or raise 'P4 Clientspec not specified'
+      @charset or raise 'P4 Charset not specified'
       @p4path or raise "P4 depot path not specified"
     end
   
@@ -87,7 +89,7 @@ module SourceControl
     # Execute a P4 command, and return an array of the resulting output lines
     # The array will contain a hash for each line out output
     def p4(operation, options = nil)
-      p4cmd = "p4 -R -p #{@port} -c #{@clientspec} -u #{@username} " + password_args
+      p4cmd = "p4 -R -p #{@port} -C #{@charset} -c #{@clientspec} -u #{@username} " + password_args
       p4cmd << "#{operation.to_s}"
       p4cmd << " " << options if options
 

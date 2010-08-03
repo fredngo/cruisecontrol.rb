@@ -2,3 +2,4 @@ p4port:
 p4user: 
 p4passwd: 
 p4client: 
+p4charset: utf8
